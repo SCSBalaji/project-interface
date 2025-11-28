@@ -17,8 +17,12 @@ export const authService = {
       return response.data;
     } catch (error) {
       // For demo purposes, simulate OTP sending
-      console.log('Demo Mode: OTP sent to', phone, '- Use 123456');
-      return { success: true, message: 'OTP sent successfully (Demo: use 123456)' };
+      // Note: In production, this fallback should be removed
+      if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+        console.log('Demo Mode: OTP would be sent to', phone);
+        return { success: true, message: 'OTP sent successfully. In demo mode, use 123456.' };
+      }
+      throw error;
     }
   },
 
@@ -27,13 +31,16 @@ export const authService = {
       const response = await api.post('/auth/signup', { name, phone, otp });
       return response.data;
     } catch (error) {
-      // For demo purposes, simulate signup
-      if (otp === '123456') {
-        const user = { id: Date.now(), name, phone };
-        console.log('Demo Mode: User signed up', user);
-        return { success: true, user, message: 'Registration successful' };
+      // Demo mode fallback - only when backend is not available
+      if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+        // Demo OTP for testing purposes only
+        const DEMO_OTP = '123456';
+        if (otp === DEMO_OTP) {
+          const user = { id: Date.now(), name, phone };
+          return { success: true, user, message: 'Registration successful' };
+        }
       }
-      throw new Error('Invalid OTP. Use 123456 for demo.');
+      throw new Error('Invalid OTP');
     }
   },
 
@@ -42,13 +49,16 @@ export const authService = {
       const response = await api.post('/auth/signin', { phone, otp });
       return response.data;
     } catch (error) {
-      // For demo purposes, simulate signin
-      if (otp === '123456') {
-        const user = { id: Date.now(), name: 'Farmer', phone };
-        console.log('Demo Mode: User signed in', user);
-        return { success: true, user, message: 'Login successful' };
+      // Demo mode fallback - only when backend is not available
+      if (process.env.NODE_ENV === 'development' || !process.env.REACT_APP_API_URL) {
+        // Demo OTP for testing purposes only
+        const DEMO_OTP = '123456';
+        if (otp === DEMO_OTP) {
+          const user = { id: Date.now(), name: 'Farmer', phone };
+          return { success: true, user, message: 'Login successful' };
+        }
       }
-      throw new Error('Invalid OTP. Use 123456 for demo.');
+      throw new Error('Invalid OTP');
     }
   },
 };

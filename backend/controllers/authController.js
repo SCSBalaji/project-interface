@@ -39,9 +39,7 @@ exports.sendOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'OTP sent successfully',
-      // Only include OTP in development for testing
-      ...(process.env.NODE_ENV === 'development' && { demoOtp: otp }),
+      message: 'OTP sent successfully. In demo mode, use 123456.',
     });
   } catch (error) {
     console.error('Send OTP Error:', error);
